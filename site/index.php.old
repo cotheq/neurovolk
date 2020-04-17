@@ -1,0 +1,334 @@
+<html>
+<head>
+    <style>
+        html, body {
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+<?php
+    sleep(1);
+    mb_internal_encoding("UTF-8");
+    
+    const MAT_REG = "/((х(у|\*)(й|я|ю|и))|(п(и|\*)зд(а|ы|у|ой|ец))|(про|за|^| |на|пере|от(ъ|.?))(еб(\*|а|л|и|у))|(^|\ )(бл(я|\*)(д|ть)))/im";
+    
+    const EMOJI_REG = "/😍|😔|❤|🙏|🔥|😊|😂|✌|👇|😌|😈|😉|🎧|🏻|🖤|💫|👌|☝|👍|✨|🌸|😏|😃|￼|😄|💪|🌚|😎|💕|😱|❄|💔|🌺|💋|😆|👏|🍃|📺|😜|🙌|😕|😘|🎄|💥|😢|😋|👊|🍂|☀|✋|😻|💞|😩|😇|✈|🥀|😒|🏼|🙈|😭|💭|💖|😳|👑|😐|😀|🚀|🕊|👼|🤘|💙|😑|👆|👪|😁|❗|🌲|🌹|✊|🌑|😹|🍁|☁|😴|🌿|🍫|😟|🌝|🙅|💰|🤣|😅|🎶|🎁|✔|💜|💎|😮|💐|😠|🔫|📱|🎅|🌴|🔝|🌊|🍓|🤗|📢|👈|💦|💣|😽|😚|👿|🐼|💝|🏡|🍷|💗|💑|🎈|😨|🔞|🙀|💃|🍑|⛄|🐈|🎀|😰|🔹|🌙|👀|🎤|🤤|🏊|😷|🍒|🌼|👰|🔱|✟|🍴|😓|🔪|🍰|⭐|💤|☆|🌷|🚶|😖|☘|💏|🏃|🎬|💓|►|👯|🖕|🆘|🌟|🌞|😝|☕|🍹|👉|😥|👋|🚘|♔|⚡|🔗|🙇|🏠|☜|☞|✝|👐|💴|💷|💳|📚|😫|🎂|🍉|😡|⛔|👩|👦|💻|✉|➕|➖|🐣|🎨|💌|🦁|🎳|🎙|🤢|🤷|♂|♻|😸|🐹|👸|🏆|⚽|👎|👵|🌌|👫|☻|🎥|🚗|💽|🏒|🥅|▷|▪|📞|👻|😯|🎚|🔰|🙃|⬛|💘|💶|🤔|🦋|🏾|🐉|😶|😧|🔊|🎉|😣|⤵|🏩|🐑|🎵|👽|🍼|👶|🤪|🍝|🍛|★|😛|🖇|😞ฺ|🌦|👠|✖|🖐|🌁|🦉|🎼|🤙|❣|🚫|🍏|🍐|☹/";
+    
+    const IMG_SEP = ',';
+    
+    
+    function conditions_text($str) {
+        /*$emoji_matches = preg_match_all(EMOJI_REG, $str);
+        return
+            (mb_strlen($str) >= 71 && mb_strlen($str) <= 140) &&
+            //preg_match("/\ волк.* /", $str)
+            //preg_match(MAT_REG, $str) &&
+            //$emoji_matches > 0 &&
+            true
+            // || true
+        ;*/
+        return true;
+    }
+    
+    function conditions_image($str, $strict_volk = false) {
+        /*
+        $emoji_matches = preg_match_all(EMOJI_REG, $str);
+        $split_text = explode(IMG_SEP, $str);
+        $max_split_length = 0;
+        foreach ($split_text as $sss) {
+            $max_split_length = max($max_split_length, mb_strlen(trim($sss)));
+        }*/
+
+        return
+            /*(mb_strlen($str) >= 5 && mb_strlen($str) <= 90) &&
+            $max_split_length <= 38 &&
+            !preg_match('/\d{1,}/', $str) &&
+            $emoji_matches <= 0 &&
+            sizeof($split_text) > 1 && sizeof($split_text) <= 3 &&*/
+            (!$strict_volk xor preg_match("/\ волк.* /i", $str)) &&
+            true
+        ;
+    }   
+
+    function fuckyou() {
+        echo("Wrong index. Fuck you.");
+        die;
+    }
+    
+    function print_info($a, $index) {
+        $size = sizeof($a);
+        echo("<pre>");
+        echo("size   : " . $size . "<br/>");
+        echo('length : ' . mb_strlen($a[$index]) . "<br/>");
+        echo('index  : <a href="/?index=' . $index . '">' . $index . '</a><br/>');
+        echo("<br/>");
+        echo('text:' . "<br/>" . $a[$index]);
+        echo("</pre>");
+    }
+    
+    function select_random($a, $for_image = false, $strict_volk = false) {
+        if ($for_image) {
+            do {
+                $index = rand(1, sizeof($a) - 2);
+            } while (!conditions_image($a[$index], $strict_volk));
+        } else {
+            do {
+                $index = rand(1, sizeof($a) - 2);
+            } while (!conditions_text($a[$index]));
+        }
+        return $index;
+    }
+
+    const SAMPLES_DIR = "text_samples/";
+    const FNAME = SAMPLES_DIR .
+        //"sample.356.2019-12-18-14-39-35.txt"
+        "sample.forimages.txt"
+    ;
+    
+    $a = explode("^", file_get_contents(FNAME));
+
+    function drawOneText($img, $txt, $v_position = 'top', $font_size, $index=-1) {
+        $width = imagesx($img);
+        $height = imagesy($img);
+        $white = imagecolorallocate($img, 255, 255, 255);
+        $black = imagecolorallocate($img, 0, 0, 0);
+        $font = "./FSEX300.ttf"; 
+        $text_size = imagettfbbox($font_size, 0, $font, $txt);
+        $text_width = abs(max([$text_size[2], $text_size[4]]) - min([$text_size[0], $text_size[6]]));
+        $text_height = abs(max([$text_size[5], $text_size[7]]) - min([$text_size[1], $text_size[3]]));
+        $x = rand(intval(0), intval($width - $text_width));
+        switch($v_position) {
+            case 'top':
+                $y = rand(intval($text_height), max($text_height, intval(0.3 * $height - $text_height)));
+                break;
+            case 'middle':
+                $y = rand(intval(0.3 * $height), intval(0.7 * $height - $text_height));
+                break;
+            case 'bottom':
+                $y = rand(intval(0.7 * $height), intval($height - $text_height - 10));
+                break;
+            case 'watermark':
+                $x = $width - $text_width - 5;
+                $y = intval($height - 5);
+                break;
+            default:
+                $y = 0;
+                break;
+        }
+        imagefilledrectangle($img, $x + $text_size[0], $y + $text_size[1], $x + $text_size[4], $y + $text_size[5], $black);
+        imagettftext($img, $font_size, 0, $x, $y, $white, $font, $txt);
+    }
+
+    function drawTexts($img, $texts, $font_size, $index=-1) {
+
+        
+        if (sizeof($texts) > 0) {
+            drawOneText($img, mb_strtolower(trim($texts[0])), 'top', $font_size, $index);
+        }
+        
+        if (sizeof($texts) > 1) {
+            drawOneText($img, mb_strtolower(trim($texts[sizeof($texts)-1])), 'bottom', $font_size, $index);
+            
+        }
+        
+        if (sizeof($texts) > 2) {
+            drawOneText($img, mb_strtolower(trim($texts[1])), 'middle', $font_size, $index);
+        }
+        
+        drawOneText($img, "vk.com/neurovolk", 'watermark', $font_size * 0.8);
+    
+        ob_start(); // Let's start output buffering.
+            $generated_path = 'generated/generated_' . $index . '.jpg';
+            imagejpeg($img, $generated_path, 15); //This will normally output the image, but because of ob_start(), it won't.
+            //$contents = ob_get_contents(); //Instead, output above is saved to $contents
+        ob_end_clean(); //End the output buffer.
+        
+        //$dataUri = "data:image/jpeg;base64," . base64_encode($contents);
+          echo '<img style="width:500px;" src="' . $generated_path . '"/><br/>';
+          //imagedestroy($jpg_image);
+        return $generated_path;
+    }
+    
+    function random_pic($dir = 'uploads')
+    {
+        $files = glob($dir . '/*.*');
+        $file = array_rand($files);
+        return $files[$file];
+    }
+
+    if (!(isset($_GET['img']))) {
+        $_GET['img'] = '0';
+    } 
+    
+    if ($_GET['img'] == '1') {
+
+        if (!isset($_GET['index'])) {
+            $strict_volk = (rand(0, 100) < 10) ? true : false;
+            $index = select_random($a, true, $strict_volk);
+        } else {
+            
+            $index = $_GET['index'];
+            $strict_volk = preg_match("/\ волк.* /i", $a[$index]);
+            try {
+                $index = $index * 1;
+                if ($index < 0 || $index >= sizeof($a)) {
+                    fuckyou();
+                }
+            } catch(Exception $e) {
+                fuckyou();
+            }
+            
+        }
+        
+        if ($strict_volk) {
+            echo ("STRICT_VOLK");
+        }
+        print_info($a, $index);
+
+        if (!conditions_image($a[$index], $strict_volk)) {
+            echo "image generation is not supported for this phrase";
+        } else {
+            $texts = explode(IMG_SEP, $a[$index]);
+            if ($strict_volk) {
+                $category = "volk";
+            } else {
+                $category = "bratva";
+            }
+            $img_path = random_pic('images/' . $category);
+            $src_img = imagecreatefromjpeg($img_path);
+            
+            // THE IMAGE SIZE
+            $width = imagesx($src_img);
+            $height = imagesy($src_img);
+            
+            $newwidth = 600;
+            $newheight = $newwidth / $width * $height;
+            $img = imagecreatetruecolor($newwidth, $newheight);
+            
+            imagecopyresampled($img, $src_img, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+            
+            
+            $txt = mb_strtolower($a[$index]);
+          
+            $img_url = drawTexts($img, $texts, intval($newwidth / 25), $index);
+            
+            if (isset($_GET['to_fucking_vk'])) {
+                if ($_GET['to_fucking_vk'] == 1) {
+                    $group_id = 189548430;
+                    $access_token = "9eaf8d8ad49c3e515feda65e391ac7972119e403f693b0a3791af92e4227dc24da5678b195aed035946b2";
+                    
+                    $params = array(
+                    	'v'            => '5.00',
+                    	'access_token' => $access_token,
+                    	'group_id'     => $group_id, 
+                    	'upload_url'     => $img_url, 
+                    );
+                    
+                    //var_dump($params);
+                    
+                    $upload_url = json_decode(file_get_contents('https://api.vk.com/method/photos.getWallUploadServer?' . http_build_query($params)))->response->upload_url;
+                    //echo $upload_url;
+                    
+                    $file_new = new CURLFile($img_url);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_HEADER, 0);
+                    curl_setopt($ch, CURLOPT_URL, $upload_url);
+                    curl_setopt($ch, CURLOPT_POST, 1);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                    // curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+                    'file1' => $file_new
+                    ));
+                    $result = json_decode(curl_exec($ch),true);
+                    //echo '<b>' . json_encode($result) . "</b>";
+                    curl_close($ch);
+                    
+                    $params = array(
+                    	'v'            => '5.00',
+                    	'group_id' => $group_id,
+                    	'server' => $result['server'],
+                    	'hash' => $result['hash'],
+                    	'photo' => urldecode($result['photo']),
+                    	'access_token' => $access_token,
+                    	//'attachments'  => $link
+                    );
+                     
+                     
+                     
+                     
+                    $response = json_decode(file_get_contents('https://api.vk.com/method/photos.saveWallPhoto?' . http_build_query($params)), true);
+                    //echo json_encode($response);
+                    if (!empty($response['response'][0]['id'])) {
+                        $img_id = $response['response'][0]['id'];
+                        $params = array(
+                        	'v'            => '5.00',
+                        	'access_token' => $access_token,
+                        	'owner_id'     => -$group_id , 
+                        	'from_group'   => '1', 
+                        	'message' => "",
+                        	'attachments'  => 'photo' . $response['response'][0]['owner_id'] . '_' . $img_id
+                        );
+                        
+                        //var_dump($params);
+                    
+                        $response = json_decode(file_get_contents('https://api.vk.com/method/wall.post?' . http_build_query($params)), true);
+                        
+                    }
+                    
+                    echo json_encode($response);
+                    
+                }
+            }
+        } 
+        
+        
+    } else {
+        if (!isset($_GET['index'])) {
+            $index = select_random($a);
+        } else {
+            
+            $index = $_GET['index'];
+            try {
+                $index = $index * 1;
+                if ($index < 0 || $index >= sizeof($a)) {
+                    fuckyou();
+                }
+            } catch(Exception $e) {
+                fuckyou();
+            }
+            
+        }
+        
+        print_info($a, $index);
+        
+        if (isset($_GET['to_fucking_vk'])) {
+            if ($_GET['to_fucking_vk'] == 1) {
+                $message = $a[$index];
+                $group_id = 189548430;
+                $access_token = "9eaf8d8ad49c3e515feda65e391ac7972119e403f693b0a3791af92e4227dc24da5678b195aed035946b2";
+                $params = array(
+                	'v'            => '5.00',
+                	'access_token' => $access_token,
+                	'owner_id'     => '-' . $group_id, 
+                	'from_group'   => '1', 
+                	'message'      => $message,
+                	//'attachments'  => $link
+                );
+                 
+                $response = file_get_contents('https://api.vk.com/method/wall.post?' . http_build_query($params));
+                echo($response);
+            }
+        }
+    }
+
+    
+    
+    
+    
+    die;
+?>
+</body>
+</html>

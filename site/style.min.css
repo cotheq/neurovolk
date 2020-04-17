@@ -1,0 +1,163 @@
+@font-face{font-family:'Soxra';src:url('Soxra.ttf') format('truetype');}
+
+html, body {
+    margin: 0; padding: 0;
+    background: black;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    color: white;
+    font-size: 2vh;
+    font-family:"Fixedsys Excelsior 3.01",monospace;
+    overflow: hidden;
+}
+
+* {
+    user-select: none;
+}
+
+a {color:white; background: blue;}
+a:visited {background: purple;}
+span {color:red;}
+
+.generated {
+    height: 100vh;
+    
+}
+
+.icon {
+    display: flex;
+    background: black;
+    width: 5vh;
+    height: 5vh;
+    border-radius: 0;
+    padding: 1vh;
+    border: 3px solid white;
+    align-items: center;
+    justify-content: center;
+    font-size: 3vh;
+}
+
+.icon-link {
+    background: none;
+    text-decoration: none;
+}
+
+.icons {
+    position: absolute;
+    margin-top: 1vh;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+#rating {
+    font-size: 4vh;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    height: 5vh;
+    border-radius: 0;
+    padding: 1vh;
+}
+
+.icons--left {
+    left: 0;
+}
+
+.icons--right {
+    right: 0;
+}
+
+.icons--left .icon, .icons--right div {
+    margin-left: 1vh;
+    margin-right:0;
+}
+
+.icons--right .icon {
+    margin-right: 1vh;
+    margin-left:0;
+}
+
+.index {
+    margin-right: 2vh;
+    bottom: 0;
+    position: absolute;
+    color: white;
+    font-size: 4vh;
+    right: 0;
+    margin-bottom: 2vh;
+    letter-spacing: 2px;
+}
+
+.text {
+    font-size: 7vh;
+    width: 100%;
+    padding: 3vh;
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    text-align: center;
+    display: inline-block;
+    letter-spacing: 4px;
+    
+    
+    
+    font-size: 7vh;
+    width: 100%;
+    padding: 3vh;
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    text-align: center;
+    display: inline-block;
+    letter-spacing: 4px;
+    vertical-align: middle;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+
+
+.like img {
+    background: black;
+}
+
+.dislike-button {
+    transform: rotate(180deg);
+}
+
+#like, #dislike {
+    transition: background 400ms, border 100ms;
+}
+
+.faq {
+    display: block;
+    overflow:  auto;
+    overflow-x:  hidden;
+    overflow-y: visible;
+}
+
+.faq .text {
+    margin-top: 7vh;
+    width: auto;
+}
+
+.faq-content {
+    margin: auto;
+    line-height: 1.25em;
+    width: 80vw;
+    max-width:1200px;
+    font-size: 3vh;
+    text-align: justify;
+    background: white !important;
+    color: black;
+    padding: 4vh;
+}
+
+.faq-content, .faq-content *, .text {
+    user-select: text !important;
+}
